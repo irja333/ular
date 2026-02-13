@@ -1,6 +1,7 @@
 import streamlit as st
 import time
 import random
+from st_keyup import st_keyup
 
 # --- KONFIGURASI HALAMAN ---
 st.set_page_config(page_title="Snake Pro Streamlit", page_icon="🐍", layout="centered")
