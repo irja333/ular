@@ -19,7 +19,7 @@
             background-color: #0d0e15;
             color: #e2e8f0;
             overflow-x: hidden;
-            touch-action: none; /* Mencegah geser bawaan browser pada HP saat bermain */
+            /* touch-action: none dihapus dari sini agar halaman luar bisa di-scroll secara normal di HP */
         }
         .arcade-font {
             font-family: 'Press Start 2P', cursive;
@@ -48,26 +48,11 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
-        /* Scrollbar styling */
-        ::-webkit-scrollbar {
-            width: 6px;
+        
+        #game-container {
+            touch-action: none; /* Mencegah layar HP bergeser saat mengontrol ular menggunakan usapan jari */
         }
-        ::-webkit-scrollbar-track {
-            background: #0d0e15;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(0, 242, 254, 0.5);
-            border-radius: 3px;
-        }
-        /* Animation keyframes */
-        @keyframes pulse-slow {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.02); }
-        }
-        .pulse-effect {
-            animation: pulse-slow 3s infinite ease-in-out;
-        }
-
+        
         /* Mode Layar Fokus / Theatre Mode */
         .theatre-active {
             position: fixed !important;
@@ -442,35 +427,33 @@
             const theatreText = document.getElementById('theatre-text');
 
             if (isTheatreMode) {
-                // Enter Theatre Mode
                 cabinet.classList.add('theatre-active');
-                
-                // Hide page sidebars and outer headers to give game maximum layout priority
                 mainHeader.classList.add('hidden');
                 mainFooter.classList.add('hidden');
                 leftPanel.classList.add('hidden');
                 rightPanel.classList.add('hidden');
 
-                // Update HUD metrics
+                // Kunci gulir halaman web secara keseluruhan hanya saat bermain di Mode Fokus
+                document.body.style.overflow = 'hidden';
+
                 document.getElementById('theatre-score').innerText = score;
                 document.getElementById('theatre-high').innerText = highScores[gameMode] || 0;
                 theatreHud.classList.remove('hidden');
                 theatreHud.classList.add('flex');
 
-                // Adjust Theatre toggle button inside the cabinet
                 theatreBtn.classList.remove('bg-cyan-950/20', 'text-cyan-400', 'border-cyan-500/30');
                 theatreBtn.classList.add('bg-pink-500/10', 'text-pink-400', 'border-pink-500/30');
                 theatreIcon.className = 'fa-solid fa-minimize';
-                theatreText.innerText = 'Kembali';
-
+                theatreText.innerText = 'Biasa';
             } else {
-                // Exit Theatre Mode
                 cabinet.classList.remove('theatre-active');
-                
                 mainHeader.classList.remove('hidden');
                 mainFooter.classList.remove('hidden');
                 leftPanel.classList.remove('hidden');
                 rightPanel.classList.remove('hidden');
+
+                // Kembalikan kemampuan scroll halaman luar saat keluar dari Mode Fokus
+                document.body.style.overflow = '';
 
                 theatreHud.classList.add('hidden');
                 theatreHud.classList.remove('flex');
@@ -478,14 +461,13 @@
                 theatreBtn.classList.add('bg-cyan-950/20', 'text-cyan-400', 'border-cyan-500/30');
                 theatreBtn.classList.remove('bg-pink-500/10', 'text-pink-400', 'border-pink-500/30');
                 theatreIcon.className = 'fa-solid fa-maximize';
-                theatreText.innerText = 'Mode Fokus';
+                theatreText.innerText = 'Fokus';
             }
             
-            // Re-render and force clear drawings on layout size transition
-            setTimeout(draw, 50);
+            // Trigger recalculation on dynamic layouts resize
+            setTimeout(resizeCanvas, 50);
         }
 
-        // Detect Escape key to exit Theatre Mode
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && isTheatreMode) {
                 toggleTheatreMode();
