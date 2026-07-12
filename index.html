@@ -233,6 +233,10 @@
                 <button onclick="togglePause()" class="flex-1 py-2.5 px-4 rounded-xl border border-gray-700 bg-slate-900/60 hover:bg-slate-800/60 text-white font-semibold flex items-center justify-center gap-2 transition">
                     <i id="pause-btn-icon" class="fa-solid fa-pause"></i> <span id="pause-btn-text">Jeda Game</span>
                 </button>
+                <button onclick="toggleFullscreen()" class="py-2.5 px-4 rounded-xl border border-gray-700 bg-slate-900/60 hover:bg-slate-800/60 text-white transition flex items-center justify-center gap-2" title="Layar Penuh">
+                    <i id="fullscreen-icon" class="fa-solid fa-expand"></i>
+                    <span class="hidden sm:inline text-xs font-semibold">Layar Penuh</span>
+                </button>
                 <button onclick="toggleMute()" class="py-2.5 px-4 rounded-xl border border-gray-700 bg-slate-900/60 hover:bg-slate-800/60 text-white transition flex items-center justify-center">
                     <i id="sound-icon" class="fa-solid fa-volume-high"></i>
                 </button>
@@ -393,6 +397,38 @@
                 playSynthSound(520, 'sine', 0.1, 0.1);
             }
         }
+
+        function toggleFullscreen() {
+            playSynthSound(600, 'sine', 0.08, 0.1);
+            const icon = document.getElementById('fullscreen-icon');
+            
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen()
+                    .then(() => {
+                        icon.className = 'fa-solid fa-compress text-cyan-400';
+                    })
+                    .catch(err => {
+                        console.error(`Gagal masuk ke mode fullscreen: ${err.message}`);
+                    });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                    icon.className = 'fa-solid fa-expand';
+                }
+            }
+        }
+
+        // Sync icon status when exiting fullscreen via ESC key or system gesture
+        document.addEventListener('fullscreenchange', () => {
+            const icon = document.getElementById('fullscreen-icon');
+            if (icon) {
+                if (document.fullscreenElement) {
+                    icon.className = 'fa-solid fa-compress text-cyan-400';
+                } else {
+                    icon.className = 'fa-solid fa-expand';
+                }
+            }
+        });
 
         // Game state variables
         let snake = [];
