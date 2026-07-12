@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Neon Snake - Game Ular Masa Depan</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Press Start 2P & Rajdhani -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: #0d0e15;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        .arcade-font {
+            font-family: 'Press Start 2P', cursive;
+        }
+        /* Custom Neon Glows */
+        .neon-border {
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.4), inset 0 0 15px rgba(0, 242, 254, 0.2);
+            border: 2px solid rgba(0, 242, 254, 0.8);
+        }
+        .neon-border-pink {
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.4), inset 0 0 15px rgba(255, 0, 127, 0.2);
+            border: 2px solid rgba(255, 0, 127, 0.8);
+        }
+        .neon-text {
+            text-shadow: 0 0 8px rgba(0, 242, 254, 0.8), 0 0 15px rgba(0, 242, 254, 0.5);
+        }
+        .neon-text-pink {
+            text-shadow: 0 0 8px rgba(255, 0, 127, 0.8), 0 0 15px rgba(255, 0, 127, 0.5);
+        }
+        .neon-text-yellow {
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.8), 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+        /* Glassmorphism overlays */
+        .glass-panel {
+            background: rgba(18, 20, 32, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d0e15;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 242, 254, 0.5);
+            border-radius: 3px;
+        }
+        /* Animation keyframes */
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.02); }
+        }
+        .pulse-effect {
+            animation: pulse-slow 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-2 md:p-6 select-none">
+
+    <!-- Header -->
+    <header class="w-full max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 mb-4 z-10">
+        <div class="flex items-center gap-3">
+            <div class="p-2.5 bg-cyan-950/40 rounded-xl border border-cyan-500/30 flex items-center justify-center">
+                <i class="fa-solid fa-gamepad text-2xl text-cyan-400 neon-text"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-bold tracking-wider text-cyan-400 neon-text uppercase">NEON SNAKE</h1>
+                <p class="text-xs text-cyan-300/60 uppercase tracking-widest font-semibold">Generasi Baru Game Ular</p>
+            </div>
+        </div>
+        
+        <!-- Score Bar -->
+        <div class="flex items-center gap-6 glass-panel px-6 py-2.5 rounded-2xl border border-cyan-500/20 shadow-lg">
+            <div class="text-center">
+                <span class="text-xs text-gray-400 uppercase tracking-wider block">Skor</span>
+                <span id="score-display" class="text-2xl font-bold text-cyan-400 neon-text">0</span>
+            </div>
+            <div class="h-8 w-[1px] bg-cyan-500/20"></div>
+            <div class="text-center">
+                <span class="text-xs text-gray-400 uppercase tracking-wider block font-semibold">Skor Tertinggi</span>
+                <span id="high-score-display" class="text-2xl font-bold text-pink-500 neon-text-pink">0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="w-full max-w-5xl mx-auto flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start z-10 mb-4">
+        
+        <!-- Controls & Customizations Left Panel -->
+        <section class="lg:col-span-3 flex flex-col gap-4 w-full h-full justify-start">
+            <!-- Mode Panel -->
+            <div class="glass-panel p-4 rounded-2xl border border-cyan-500/10 flex flex-col gap-3">
+                <h3 class="text-sm font-bold uppercase text-cyan-400 tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-layer-group"></i> Pilih Mode Game
+                </h3>
+                <div class="grid grid-cols-1 gap-2" id="mode-selector">
+                    <button onclick="setMode('classic')" id="btn-mode-classic" class="w-full text-left p-3 rounded-xl border border-cyan-500/30 bg-cyan-950/20 text-white transition-all hover:bg-cyan-900/30 flex items-center justify-between">
+                        <div>
+                            <p class="font-bold text-sm">Klasik</p>
+                            <p class="text-xxs text-gray-400 text-xs">Tabrak tembok = Kalah.</p>
+                        </div>
+                        <i class="fa-solid fa-circle-check text-cyan-400"></i>
+                    </button>
+                    <button onclick="setMode('portal')" id="btn-mode-portal" class="w-full text-left p-3 rounded-xl border border-gray-700 bg-transparent text-gray-400 transition-all hover:bg-cyan-950/10 flex items-center justify-between">
+                        <div>
+                            <p class="font-bold text-sm text-gray-200">Portal</p>
+                            <p class="text-xxs text-gray-400 text-xs">Tembus tembok ke sisi lain.</p>
+                        </div>
+                        <i class="fa-solid fa-circle-check opacity-0"></i>
+                    </button>
+                    <button onclick="setMode('obstacles')" id="btn-mode-obstacles" class="w-full text-left p-3 rounded-xl border border-gray-700 bg-transparent text-gray-400 transition-all hover:bg-cyan-950/10 flex items-center justify-between">
+                        <div>
+                            <p class="font-bold text-sm text-gray-200">Rintangan</p>
+                            <p class="text-xxs text-gray-400 text-xs">Awas rintangan acak di map.</p>
+                        </div>
+                        <i class="fa-solid fa-circle-check opacity-0"></i>
+                    </button>
+                    <button onclick="setMode('timeattack')" id="btn-mode-timeattack" class="w-full text-left p-3 rounded-xl border border-gray-700 bg-transparent text-gray-400 transition-all hover:bg-cyan-950/10 flex items-center justify-between">
+                        <div>
+                            <p class="font-bold text-sm text-gray-200">Kejar Waktu</p>
+                            <p class="text-xxs text-gray-400 text-xs">Waktu terbatas! Makan menambah waktu.</p>
+                        </div>
+                        <i class="fa-solid fa-circle-check opacity-0"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Skin Selector -->
+            <div class="glass-panel p-4 rounded-2xl border border-cyan-500/10 flex flex-col gap-3">
+                <h3 class="text-sm font-bold uppercase text-cyan-400 tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-palette"></i> Kostum Ular (Skin)
+                </h3>
+                <div class="grid grid-cols-2 gap-2" id="skin-selector">
+                    <button onclick="setSkin('cyan')" id="btn-skin-cyan" class="p-2.5 rounded-xl border border-cyan-500 bg-cyan-950/30 text-white font-bold text-xs flex items-center gap-2 justify-center">
+                        <span class="w-3.5 h-3.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(0,242,254,1)]"></span> Cyan Glow
+                    </button>
+                    <button onclick="setSkin('pink')" id="btn-skin-pink" class="p-2.5 rounded-xl border border-gray-700 bg-transparent text-gray-300 font-bold text-xs flex items-center gap-2 justify-center">
+                        <span class="w-3.5 h-3.5 rounded-full bg-pink-500 shadow-[0_0_8px_rgba(255,0,127,1)]"></span> Ruby Pink
+                    </button>
+                    <button onclick="setSkin('rainbow')" id="btn-skin-rainbow" class="p-2.5 rounded-xl border border-gray-700 bg-transparent text-gray-300 font-bold text-xs flex items-center gap-2 justify-center">
+                        <span class="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-red-500 via-green-500 to-blue-500"></span> Pelangi
+                    </button>
+                    <button onclick="setSkin('gold')" id="btn-skin-gold" class="p-2.5 rounded-xl border border-gray-700 bg-transparent text-gray-300 font-bold text-xs flex items-center gap-2 justify-center">
+                        <span class="w-3.5 h-3.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,1)]"></span> Cyber Gold
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Game Area -->
+        <section class="lg:col-span-6 flex flex-col items-center justify-center relative">
+            <div class="relative w-full aspect-square max-w-[500px] bg-slate-950/80 rounded-2xl overflow-hidden neon-border flex items-center justify-center" id="game-container">
+                
+                <!-- Game Canvas -->
+                <canvas id="gameCanvas" width="500" height="500" class="w-full h-full block"></canvas>
+                
+                <!-- Time Attack Overlay (Floating) -->
+                <div id="time-attack-panel" class="absolute top-4 left-4 glass-panel px-4 py-2 rounded-xl border border-yellow-500/30 hidden flex items-center gap-2">
+                    <i class="fa-solid fa-hourglass-half text-yellow-400 neon-text-yellow animate-pulse"></i>
+                    <div>
+                        <span class="text-[10px] text-gray-400 uppercase tracking-widest block font-bold">WAKTU TERSISA</span>
+                        <span id="time-left" class="text-xl font-bold text-yellow-400 neon-text-yellow font-mono">60s</span>
+                    </div>
+                </div>
+
+                <!-- Active Powerup Overlay -->
+                <div id="active-powerup" class="absolute top-4 right-4 glass-panel px-4 py-2 rounded-xl border border-pink-500/30 hidden flex items-center gap-2 animate-bounce">
+                    <span id="powerup-icon" class="text-pink-500 text-lg"></span>
+                    <div>
+                        <span id="powerup-name" class="text-[10px] text-gray-400 uppercase tracking-widest block font-bold">POWER-UP</span>
+                        <span id="powerup-timer" class="text-sm font-bold text-white font-mono">5.0s</span>
+                    </div>
+                </div>
+
+                <!-- Game Menu Screen Overlay (Start & Pause & Game Over) -->
+                <div id="menu-overlay" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-20">
+                    <div id="menu-start-view" class="flex flex-col items-center gap-4">
+                        <i class="fa-solid fa-gamepad text-5xl text-cyan-400 animate-bounce mb-2 neon-text"></i>
+                        <h2 class="arcade-font text-xl text-cyan-400 neon-text tracking-wide">SNAKE NEON 2026</h2>
+                        <p class="text-xs text-gray-400 max-w-xs mt-1">Rasakan keseruan game ular klasik dengan efek neon, berbagai mode, serta power-ups keren!</p>
+                        <button onclick="startGame()" class="mt-4 px-8 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold tracking-wider hover:from-cyan-400 hover:to-blue-500 transition-all shadow-[0_0_15px_rgba(6,182,212,0.5)] transform hover:scale-105 active:scale-95 text-lg">
+                            MULAI PERMAINAN <i class="fa-solid fa-play ml-2"></i>
+                        </button>
+                    </div>
+
+                    <div id="menu-gameover-view" class="hidden flex flex-col items-center gap-3">
+                        <i class="fa-solid fa-skull-crossbones text-5xl text-pink-500 animate-pulse mb-2 neon-text-pink"></i>
+                        <h2 class="arcade-font text-lg text-pink-500 neon-text-pink tracking-wide">GAME OVER</h2>
+                        <p id="gameover-cause" class="text-xs text-gray-400 max-w-xs"></p>
+                        
+                        <div class="grid grid-cols-2 gap-4 my-4 bg-slate-900/60 p-4 rounded-xl border border-pink-500/10 w-64 text-center">
+                            <div>
+                                <span class="text-xs text-gray-400 uppercase block font-semibold">Skor Akhir</span>
+                                <span id="final-score" class="text-2xl font-bold text-cyan-400">0</span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-gray-400 uppercase block font-semibold">Makan</span>
+                                <span id="final-eaten" class="text-2xl font-bold text-pink-500">0</span>
+                            </div>
+                        </div>
+
+                        <button onclick="startGame()" class="px-8 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-red-600 text-white font-bold tracking-wider hover:from-pink-400 hover:to-red-500 transition-all shadow-[0_0_15px_rgba(239,68,68,0.5)] transform hover:scale-105 active:scale-95">
+                            MAIN LAGI <i class="fa-solid fa-rotate-left ml-2"></i>
+                        </button>
+                    </div>
+
+                    <div id="menu-paused-view" class="hidden flex flex-col items-center gap-4">
+                        <i class="fa-solid fa-circle-pause text-5xl text-yellow-400 animate-pulse mb-2 neon-text-yellow"></i>
+                        <h2 class="arcade-font text-xl text-yellow-400 neon-text-yellow tracking-wide">PERMAINAN JEDA</h2>
+                        <p class="text-xs text-gray-400 max-w-xs">Tekan tombol di bawah untuk melanjutkan petualangan.</p>
+                        <button onclick="resumeGame()" class="mt-4 px-8 py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-amber-600 text-slate-950 font-bold tracking-wider hover:from-yellow-400 hover:to-amber-500 transition-all shadow-[0_0_15px_rgba(245,158,11,0.5)] transform hover:scale-105 active:scale-95 text-lg">
+                            LANJUTKAN <i class="fa-solid fa-play ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- In-game controls shortcut buttons (Pause, Sound) -->
+            <div class="mt-4 flex gap-4 w-full max-w-[500px]">
+                <button onclick="togglePause()" class="flex-1 py-2.5 px-4 rounded-xl border border-gray-700 bg-slate-900/60 hover:bg-slate-800/60 text-white font-semibold flex items-center justify-center gap-2 transition">
+                    <i id="pause-btn-icon" class="fa-solid fa-pause"></i> <span id="pause-btn-text">Jeda Game</span>
+                </button>
+                <button onclick="toggleMute()" class="py-2.5 px-4 rounded-xl border border-gray-700 bg-slate-900/60 hover:bg-slate-800/60 text-white transition flex items-center justify-center">
+                    <i id="sound-icon" class="fa-solid fa-volume-high"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Power-Ups & Stats Right Panel -->
+        <section class="lg:col-span-3 flex flex-col gap-4 w-full h-full justify-start">
+            <!-- Powerups Guide -->
+            <div class="glass-panel p-4 rounded-2xl border border-cyan-500/10 flex flex-col gap-3">
+                <h3 class="text-sm font-bold uppercase text-cyan-400 tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-bolt"></i> Panduan Power-Ups
+                </h3>
+                <div class="flex flex-col gap-2.5">
+                    <div class="flex items-center gap-3 p-2 bg-slate-900/40 rounded-xl border border-cyan-500/10">
+                        <span class="w-8 h-8 rounded-lg bg-pink-500/20 border border-pink-500 flex items-center justify-center text-pink-400 shrink-0">
+                            <i class="fa-solid fa-shield"></i>
+                        </span>
+                        <div>
+                            <p class="text-xs font-bold text-pink-400">Perisai Neon</p>
+                            <p class="text-[11px] text-gray-400">Melindungi Anda dari satu tabrakan.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 p-2 bg-slate-900/40 rounded-xl border border-cyan-500/10">
+                        <span class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500 flex items-center justify-center text-amber-400 shrink-0">
+                            <i class="fa-solid fa-forward"></i>
+                        </span>
+                        <div>
+                            <p class="text-xs font-bold text-amber-400">Multiplier 2x</p>
+                            <p class="text-[11px] text-gray-400">Setiap makanan bernilai skor ganda.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 p-2 bg-slate-900/40 rounded-xl border border-cyan-500/10">
+                        <span class="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500 flex items-center justify-center text-emerald-400 shrink-0">
+                            <i class="fa-solid fa-snowflake"></i>
+                        </span>
+                        <div>
+                            <p class="text-xs font-bold text-emerald-400">Pembeku</p>
+                            <p class="text-[11px] text-gray-400">Memperlambat gerakan ular agar mudah.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leaderboard / Local Achievements -->
+            <div class="glass-panel p-4 rounded-2xl border border-cyan-500/10 flex flex-col gap-3">
+                <h3 class="text-sm font-bold uppercase text-cyan-400 tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-trophy text-yellow-400"></i> Prestasi Lokal
+                </h3>
+                <div class="flex flex-col gap-2" id="achievements-container">
+                    <!-- Achievements will be populated dynamically -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Virtual Controls for Mobile and Touch Devices -->
+    <footer class="w-full max-w-sm mx-auto mb-6 flex flex-col items-center gap-2 z-10 lg:hidden">
+        <p class="text-xxs text-gray-400 uppercase tracking-widest font-semibold mb-1">Kontrol Virtual</p>
+        <div class="grid grid-cols-3 gap-2 w-48">
+            <div></div>
+            <button onclick="handleDirectionChange('UP')" class="w-14 h-14 bg-slate-900/80 active:bg-cyan-500/40 text-cyan-400 active:text-white border border-cyan-500/30 rounded-2xl flex items-center justify-center text-xl shadow-md transition-all active:scale-95 duration-75">
+                <i class="fa-solid fa-caret-up"></i>
+            </button>
+            <div></div>
+            
+            <button onclick="handleDirectionChange('LEFT')" class="w-14 h-14 bg-slate-900/80 active:bg-cyan-500/40 text-cyan-400 active:text-white border border-cyan-500/30 rounded-2xl flex items-center justify-center text-xl shadow-md transition-all active:scale-95 duration-75">
+                <i class="fa-solid fa-caret-left"></i>
+            </button>
+            <div class="w-14 h-14 bg-slate-950/20 rounded-2xl border border-gray-800 flex items-center justify-center">
+                <div class="w-3.5 h-3.5 bg-cyan-400/30 rounded-full animate-ping"></div>
+            </div>
+            <button onclick="handleDirectionChange('RIGHT')" class="w-14 h-14 bg-slate-900/80 active:bg-cyan-500/40 text-cyan-400 active:text-white border border-cyan-500/30 rounded-2xl flex items-center justify-center text-xl shadow-md transition-all active:scale-95 duration-75">
+                <i class="fa-solid fa-caret-right"></i>
+            </button>
+            
+            <div></div>
+            <button onclick="handleDirectionChange('DOWN')" class="w-14 h-14 bg-slate-900/80 active:bg-cyan-500/40 text-cyan-400 active:text-white border border-cyan-500/30 rounded-2xl flex items-center justify-center text-xl shadow-md transition-all active:scale-95 duration-75">
+                <i class="fa-solid fa-caret-down"></i>
+            </button>
+            <div></div>
+        </div>
+    </footer>
+
+    <!-- Informational Footer -->
+    <footer class="w-full max-w-5xl mx-auto text-center border-t border-cyan-950/40 pt-4 mt-auto">
+        <p class="text-xs text-gray-500">
+            <span class="text-cyan-400 font-bold">&copy; 2026 Neon Snake</span>. Mainkan dengan Tombol Arah / WASD di Keyboard, Tombol Virtual di Layar, atau Sentuh / Geser layar Anda!
+        </p>
+    </footer>
+
+    <script>
+        // Canvas configurations
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const GRID_SIZE = 20; // 25x25 grid on 500px canvas
+        let TILE_COUNT = canvas.width / GRID_SIZE;
+
+        // Sound configuration (Muted state)
+        let isMuted = false;
+
+        // Custom Sound System using Web Audio API
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSynthSound(freq, type, duration, vol = 0.1) {
+            if (isMuted) return;
+            try {
+                // Resume Context if suspended (browser safety features)
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                
+                gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                console.log("Audio error", e);
+            }
+        }
+
+        function playSoundEat() {
+            playSynthSound(440, 'triangle', 0.1, 0.15);
+            setTimeout(() => playSynthSound(880, 'triangle', 0.15, 0.15), 50);
+        }
+
+        function playSoundPowerUp() {
+            playSynthSound(300, 'sine', 0.1, 0.2);
+            setTimeout(() => playSynthSound(600, 'sine', 0.1, 0.2), 60);
+            setTimeout(() => playSynthSound(1200, 'sine', 0.2, 0.2), 120);
+        }
+
+        function playSoundHurt() {
+            playSynthSound(220, 'sawtooth', 0.3, 0.2);
+            setTimeout(() => playSynthSound(110, 'sawtooth', 0.4, 0.2), 100);
+        }
+
+        function playSoundSelect() {
+            playSynthSound(600, 'sine', 0.08, 0.1);
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            const icon = document.getElementById('sound-icon');
+            if (isMuted) {
+                icon.className = 'fa-solid fa-volume-xmark text-red-500';
+            } else {
+                icon.className = 'fa-solid fa-volume-high text-cyan-400';
+                playSynthSound(520, 'sine', 0.1, 0.1);
+            }
+        }
+
+        // Game state variables
+        let snake = [];
+        let direction = 'RIGHT';
+        let nextDirection = 'RIGHT';
+        let food = { x: 5, y: 5, type: 'normal' };
+        let obstacles = [];
+        let score = 0;
+        let foodEatenCount = 0;
+        let highScores = {
+            classic: 0,
+            portal: 0,
+            obstacles: 0,
+            timeattack: 0
+        };
+        let activePowerupType = null;
+        let powerupTimer = 0; // in miliseconds
+        let gameMode = 'classic'; // 'classic' | 'portal' | 'obstacles' | 'timeattack'
+        let snakeSkin = 'cyan'; // 'cyan' | 'pink' | 'rainbow' | 'gold'
+        let gameLoopInterval = null;
+        let lastTime = 0;
+        let gameSpeed = 100; // ms per update cycle
+        let isPaused = false;
+        let isGameOver = true;
+        let timeLeft = 60; // used for time attack mode
+        let timeAttackTimer = null;
+        let particles = [];
+
+        // Load stats & Highscores from localStorage
+        function loadHighScores() {
+            const saved = localStorage.getItem('snake_neon_highscores_v2');
+            if (saved) {
+                try {
+                    highScores = JSON.parse(saved);
+                } catch (e) {
+                    console.error("Failed parsing score", e);
+                }
+            }
+            updateHighScoreDisplay();
+            updateAchievements();
+        }
+
+        function saveHighScores() {
+            localStorage.setItem('snake_neon_highscores_v2', JSON.stringify(highScores));
+            updateHighScoreDisplay();
+            updateAchievements();
+        }
+
+        function updateHighScoreDisplay() {
+            const display = document.getElementById('high-score-display');
+            display.innerText = highScores[gameMode] || 0;
+        }
+
+        // Key Mapping
+        document.addEventListener('keydown', (e) => {
+            const key = e.key;
+            if (isGameOver) {
+                if (key === 'Enter') startGame();
+                return;
+            }
+            
+            if (key === 'Escape' || key === 'p' || key === 'P') {
+                togglePause();
+                return;
+            }
+
+            if (isPaused) return;
+
+            switch (key) {
+                case 'ArrowUp':
+                case 'w':
+                case 'W':
+                    if (direction !== 'DOWN') nextDirection = 'UP';
+                    break;
+                case 'ArrowDown':
+                case 's':
+                case 'S':
+                    if (direction !== 'UP') nextDirection = 'DOWN';
+                    break;
+                case 'ArrowLeft':
+                case 'a':
+                case 'A':
+                    if (direction !== 'RIGHT') nextDirection = 'LEFT';
+                    break;
+                case 'ArrowRight':
+                case 'd':
+                case 'D':
+                    if (direction !== 'LEFT') nextDirection = 'RIGHT';
+                    break;
+            }
+        });
+
+        function handleDirectionChange(newDir) {
+            if (isGameOver || isPaused) return;
+            playSynthSound(700, 'sine', 0.02, 0.05);
+            
+            if (newDir === 'UP' && direction !== 'DOWN') nextDirection = 'UP';
+            if (newDir === 'DOWN' && direction !== 'UP') nextDirection = 'DOWN';
+            if (newDir === 'LEFT' && direction !== 'RIGHT') nextDirection = 'LEFT';
+            if (newDir === 'RIGHT' && direction !== 'LEFT') nextDirection = 'RIGHT';
+        }
+
+        // Gesture detection (Swipe detection for smartphones)
+        let touchstartX = 0;
+        let touchstartY = 0;
+        let touchendX = 0;
+        let touchendY = 0;
+
+        const gameContainer = document.getElementById('game-container');
+        gameContainer.addEventListener('touchstart', function(e) {
+            touchstartX = e.changedTouches[0].screenX;
+            touchstartY = e.changedTouches[0].screenY;
+        }, false);
+
+        gameContainer.addEventListener('touchend', function(e) {
+            touchendX = e.changedTouches[0].screenX;
+            touchendY = e.changedTouches[0].screenY;
+            handleSwipe();
+        }, false);
+
+        function handleSwipe() {
+            const diffX = touchendX - touchstartX;
+            const diffY = touchendY - touchstartY;
+            const threshold = 40; // minimum distance to count as swipe
+
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (Math.abs(diffX) > threshold) {
+                    if (diffX > 0 && direction !== 'LEFT') nextDirection = 'RIGHT';
+                    else if (diffX < 0 && direction !== 'RIGHT') nextDirection = 'LEFT';
+                }
+            } else {
+                if (Math.abs(diffY) > threshold) {
+                    if (diffY > 0 && direction !== 'UP') nextDirection = 'DOWN';
+                    else if (diffY < 0 && direction !== 'DOWN') nextDirection = 'UP';
+                }
+            }
+        }
+
+        function setMode(mode) {
+            if (!isGameOver) return; // Cannot change mode in-game
+            playSoundSelect();
+            gameMode = mode;
+            
+            // UI selectors
+            ['classic', 'portal', 'obstacles', 'timeattack'].forEach(m => {
+                const btn = document.getElementById(`btn-mode-${m}`);
+                const checkIcon = btn.querySelector('.fa-circle-check');
+                
+                if (m === mode) {
+                    btn.className = "w-full text-left p-3 rounded-xl border border-cyan-500 bg-cyan-950/20 text-white transition-all hover:bg-cyan-900/30 flex items-center justify-between";
+                    checkIcon.classList.remove('opacity-0');
+                    checkIcon.classList.add('text-cyan-400');
+                } else {
+                    btn.className = "w-full text-left p-3 rounded-xl border border-gray-700 bg-transparent text-gray-400 transition-all hover:bg-cyan-950/10 flex items-center justify-between";
+                    checkIcon.classList.add('opacity-0');
+                    checkIcon.classList.remove('text-cyan-400');
+                }
+            });
+
+            updateHighScoreDisplay();
+        }
+
+        function setSkin(skin) {
+            playSoundSelect();
+            snakeSkin = skin;
+            
+            ['cyan', 'pink', 'rainbow', 'gold'].forEach(s => {
+                const btn = document.getElementById(`btn-skin-${s}`);
+                if (s === skin) {
+                    btn.className = btn.className.replace('border-gray-700 bg-transparent text-gray-300', 'border-cyan-500 bg-cyan-950/30 text-white');
+                } else {
+                    btn.className = btn.className.replace('border-cyan-500 bg-cyan-950/30 text-white', 'border-gray-700 bg-transparent text-gray-300');
+                }
+            });
+        }
+
+        function generateObstacles() {
+            obstacles = [];
+            if (gameMode !== 'obstacles') return;
+
+            // Generate some random neon barrier blocks (non-adjacent to initial snake / food position)
+            const count = 6 + Math.floor(Math.random() * 5); // 6 to 10 obstacles
+            for (let i = 0; i < count; i++) {
+                let x = Math.floor(Math.random() * (TILE_COUNT - 2)) + 1;
+                let y = Math.floor(Math.random() * (TILE_COUNT - 2)) + 1;
+                
+                // Prevent placing on start line of snake (y=10, x around 10)
+                if (y === 10 || (x > 5 && x < 15)) continue;
+                
+                obstacles.push({ x, y });
+            }
+        }
+
+        function spawnParticles(x, y, color) {
+            // Spawn 12 glowing particles that shoot in random directions
+            for (let i = 0; i < 12; i++) {
+                particles.push({
+                    x: x * GRID_SIZE + GRID_SIZE / 2,
+                    y: y * GRID_SIZE + GRID_SIZE / 2,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: (Math.random() - 0.5) * 6,
+                    radius: Math.random() * 3 + 2,
+                    alpha: 1,
+                    color: color
+                });
+            }
+        }
+
+        function updateParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= 0.04;
+                
+                if (p.alpha <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+        }
+
+        function drawParticles() {
+            particles.forEach(p => {
+                ctx.save();
+                ctx.globalAlpha = p.alpha;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = p.color;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+        }
+
+        // Generate dynamic food or power-up positions
+        function spawnFood() {
+            let valid = false;
+            let fx, fy;
+            
+            while (!valid) {
+                fx = Math.floor(Math.random() * TILE_COUNT);
+                fy = Math.floor(Math.random() * TILE_COUNT);
+                valid = true;
+                
+                // Check if on snake body
+                for (let part of snake) {
+                    if (part.x === fx && part.y === fy) {
+                        valid = false;
+                        break;
+                    }
+                }
+                
+                // Check if on obstacles
+                for (let obs of obstacles) {
+                    if (obs.x === fx && obs.y === fy) {
+                        valid = false;
+                        break;
+                    }
+                }
+            }
+
+            // Decide food type
+            // 75% standard apple, 25% special Powerups
+            const rand = Math.random();
+            let type = 'normal';
+            
+            if (rand > 0.75) {
+                const pTypes = ['shield', 'multiplier', 'freeze'];
+                type = pTypes[Math.floor(Math.random() * pTypes.length)];
+            }
+
+            food = { x: fx, y: fy, type: type };
+        }
+
+        function initGame() {
+            snake = [
+                { x: 10, y: 10 },
+                { x: 9, y: 10 },
+                { x: 8, y: 10 }
+            ];
+            direction = 'RIGHT';
+            nextDirection = 'RIGHT';
+            score = 0;
+            foodEatenCount = 0;
+            activePowerupType = null;
+            powerupTimer = 0;
+            document.getElementById('score-display').innerText = score;
+            document.getElementById('active-powerup').classList.add('hidden');
+            
+            generateObstacles();
+            spawnFood();
+            
+            if (gameMode === 'timeattack') {
+                timeLeft = 60;
+                document.getElementById('time-left').innerText = `${timeLeft}s`;
+                document.getElementById('time-attack-panel').classList.remove('hidden');
+                
+                clearInterval(timeAttackTimer);
+                timeAttackTimer = setInterval(() => {
+                    if (!isPaused && !isGameOver) {
+                        timeLeft--;
+                        document.getElementById('time-left').innerText = `${timeLeft}s`;
+                        
+                        if (timeLeft <= 10) {
+                            playSynthSound(900, 'sine', 0.1, 0.05);
+                        }
+                        
+                        if (timeLeft <= 0) {
+                            triggerGameOver("Waktu Habis!");
+                        }
+                    }
+                }, 1000);
+            } else {
+                document.getElementById('time-attack-panel').classList.add('hidden');
+            }
+        }
+
+        function startGame() {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            playSynthSound(520, 'sine', 0.15, 0.15);
+            setTimeout(() => playSynthSound(780, 'sine', 0.2, 0.15), 100);
+
+            isGameOver = false;
+            isPaused = false;
+            
+            document.getElementById('menu-overlay').classList.add('hidden');
+            
+            initGame();
+            
+            // Clear and start fresh main loop
+            if (gameLoopInterval) clearInterval(gameLoopInterval);
+            gameSpeed = 110;
+            gameLoopInterval = setInterval(update, gameSpeed);
+        }
+
+        function togglePause() {
+            if (isGameOver) return;
+            
+            isPaused = !isPaused;
+            const pauseBtnIcon = document.getElementById('pause-btn-icon');
+            const pauseBtnText = document.getElementById('pause-btn-text');
+            const menuOverlay = document.getElementById('menu-overlay');
+            const pausedView = document.getElementById('menu-paused-view');
+            const startView = document.getElementById('menu-start-view');
+            const gameoverView = document.getElementById('menu-gameover-view');
+
+            if (isPaused) {
+                playSynthSound(400, 'sine', 0.1, 0.1);
+                pauseBtnIcon.className = "fa-solid fa-play";
+                pauseBtnText.innerText = "Lanjut";
+                
+                menuOverlay.classList.remove('hidden');
+                pausedView.classList.remove('hidden');
+                startView.classList.add('hidden');
+                gameoverView.classList.add('hidden');
+            } else {
+                resumeGame();
+            }
+        }
+
+        function resumeGame() {
+            playSynthSound(600, 'sine', 0.1, 0.1);
+            isPaused = false;
+            document.getElementById('pause-btn-icon').className = "fa-solid fa-pause";
+            document.getElementById('pause-btn-text').innerText = "Jeda Game";
+            document.getElementById('menu-overlay').classList.add('hidden');
+        }
+
+        function triggerGameOver(reason) {
+            isGameOver = true;
+            clearInterval(gameLoopInterval);
+            clearInterval(timeAttackTimer);
+            playSoundHurt();
+
+            // Check highscores
+            if (score > (highScores[gameMode] || 0)) {
+                highScores[gameMode] = score;
+                saveHighScores();
+            }
+
+            document.getElementById('menu-overlay').classList.remove('hidden');
+            document.getElementById('menu-start-view').classList.add('hidden');
+            document.getElementById('menu-paused-view').classList.add('hidden');
+            
+            const gameoverView = document.getElementById('menu-gameover-view');
+            gameoverView.classList.remove('hidden');
+            
+            document.getElementById('gameover-cause').innerText = reason || "Anda menabrak dinding atau ekor sendiri!";
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('final-eaten').innerText = foodEatenCount;
+        }
+
+        function update() {
+            if (isPaused || isGameOver) return;
+
+            // Handle Powerup timer decrements
+            if (activePowerupType) {
+                powerupTimer -= gameSpeed;
+                const sec = Math.max(0, (powerupTimer / 1000).toFixed(1));
+                document.getElementById('powerup-timer').innerText = `${sec}s`;
+                
+                if (powerupTimer <= 0) {
+                    activePowerupType = null;
+                    document.getElementById('active-powerup').classList.add('hidden');
+                    // Reset Speed modifier
+                    adjustGameSpeed(110);
+                }
+            }
+
+            // Move Snake
+            direction = nextDirection;
+            const head = { ...snake[0] };
+
+            switch (direction) {
+                case 'UP': head.y--; break;
+                case 'DOWN': head.y++; break;
+                case 'LEFT': head.x--; break;
+                case 'RIGHT': head.x++; break;
+            }
+
+            // Wall Collision & Teleportation handler
+            if (gameMode === 'portal') {
+                if (head.x < 0) head.x = TILE_COUNT - 1;
+                if (head.x >= TILE_COUNT) head.x = 0;
+                if (head.y < 0) head.y = TILE_COUNT - 1;
+                if (head.y >= TILE_COUNT) head.y = 0;
+            } else {
+                if (head.x < 0 || head.x >= TILE_COUNT || head.y < 0 || head.y >= TILE_COUNT) {
+                    if (activePowerupType === 'shield') {
+                        // Shield save! Use active shield, bounce snake back or stop
+                        activePowerupType = null;
+                        document.getElementById('active-powerup').classList.add('hidden');
+                        playSynthSound(800, 'square', 0.2, 0.15);
+                        return; // skip move
+                    } else {
+                        triggerGameOver("Anda menabrak pembatas arena!");
+                        return;
+                    }
+                }
+            }
+
+            // Self Collision detection
+            for (let part of snake) {
+                if (part.x === head.x && part.y === head.y) {
+                    if (activePowerupType === 'shield') {
+                        activePowerupType = null;
+                        document.getElementById('active-powerup').classList.add('hidden');
+                        playSynthSound(800, 'square', 0.2, 0.15);
+                        return;
+                    } else {
+                        triggerGameOver("Anda menabrak tubuh sendiri!");
+                        return;
+                    }
+                }
+            }
+
+            // Obstacles collision check
+            if (gameMode === 'obstacles') {
+                for (let obs of obstacles) {
+                    if (obs.x === head.x && obs.y === head.y) {
+                        if (activePowerupType === 'shield') {
+                            activePowerupType = null;
+                            document.getElementById('active-powerup').classList.add('hidden');
+                            playSynthSound(800, 'square', 0.2, 0.15);
+                            return;
+                        } else {
+                            triggerGameOver("Anda menabrak rintangan neon!");
+                            return;
+                        }
+                    }
+                }
+            }
+
+            // Append head to snake
+            snake.unshift(head);
+
+            // Eat Food handler
+            if (head.x === food.x && head.y === food.y) {
+                foodEatenCount++;
+                
+                // Score determination
+                let basePoints = 10;
+                let soundType = 'eat';
+
+                if (food.type === 'normal') {
+                    spawnParticles(food.x, food.y, '#00f2fe');
+                    playSoundEat();
+                } else {
+                    // It's a special Powerup
+                    activePowerupType = food.type;
+                    powerupTimer = 5000; // 5 seconds
+                    soundType = 'powerup';
+                    playSoundPowerUp();
+                    
+                    const pName = document.getElementById('powerup-name');
+                    const pIcon = document.getElementById('powerup-icon');
+                    const pTimerContainer = document.getElementById('active-powerup');
+                    pTimerContainer.classList.remove('hidden');
+
+                    if (food.type === 'shield') {
+                        spawnParticles(food.x, food.y, '#ec4899');
+                        pName.innerText = "PELINDUNG AKTIF";
+                        pIcon.className = "fa-solid fa-shield text-pink-400";
+                    } else if (food.type === 'multiplier') {
+                        spawnParticles(food.x, food.y, '#f59e0b');
+                        pName.innerText = "MULT skor 2x";
+                        pIcon.className = "fa-solid fa-forward text-amber-400";
+                    } else if (food.type === 'freeze') {
+                        spawnParticles(food.x, food.y, '#10b981');
+                        pName.innerText = "PEMBEKU AKTIF";
+                        pIcon.className = "fa-solid fa-snowflake text-emerald-400";
+                        adjustGameSpeed(170); // Slow down
+                    }
+                }
+
+                // If multiplier is active
+                if (activePowerupType === 'multiplier') {
+                    basePoints *= 2;
+                }
+
+                score += basePoints;
+                document.getElementById('score-display').innerText = score;
+                
+                if (gameMode === 'timeattack') {
+                    timeLeft = Math.min(99, timeLeft + 4); // add 4 seconds per food
+                    document.getElementById('time-left').innerText = `${timeLeft}s`;
+                }
+
+                // Increase game speed progressively (only if freeze is not active)
+                if (activePowerupType !== 'freeze') {
+                    const newSpeed = Math.max(65, 110 - Math.floor(score / 80) * 5);
+                    adjustGameSpeed(newSpeed);
+                }
+
+                spawnFood();
+            } else {
+                // Remove tail segment
+                snake.pop();
+            }
+
+            // Handle rendering canvas inside requestAnimationFrame
+            updateParticles();
+            draw();
+        }
+
+        function adjustGameSpeed(newSpeed) {
+            if (gameSpeed !== newSpeed) {
+                gameSpeed = newSpeed;
+                clearInterval(gameLoopInterval);
+                gameLoopInterval = setInterval(update, gameSpeed);
+            }
+        }
+
+        function draw() {
+            // Clear Frame with futuristic scanline look & grid background
+            ctx.fillStyle = '#06070d';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw grid lines (subtle)
+            ctx.strokeStyle = 'rgba(0, 242, 254, 0.04)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= TILE_COUNT; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * GRID_SIZE, 0);
+                ctx.lineTo(i * GRID_SIZE, canvas.height);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(0, i * GRID_SIZE);
+                ctx.lineTo(canvas.width, i * GRID_SIZE);
+                ctx.stroke();
+            }
+
+            // Draw Obstacles (if Rintangan Mode)
+            if (gameMode === 'obstacles') {
+                obstacles.forEach(obs => {
+                    ctx.save();
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = '#ef4444';
+                    ctx.fillStyle = '#ef4444';
+                    ctx.strokeStyle = '#f87171';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.roundRect(obs.x * GRID_SIZE + 2, obs.y * GRID_SIZE + 2, GRID_SIZE - 4, GRID_SIZE - 4, 4);
+                    ctx.fill();
+                    ctx.stroke();
+                    
+                    // Core detail line
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(obs.x * GRID_SIZE + 5, obs.y * GRID_SIZE + 5);
+                    ctx.lineTo(obs.x * GRID_SIZE + GRID_SIZE - 5, obs.y * GRID_SIZE + GRID_SIZE - 5);
+                    ctx.stroke();
+                    ctx.restore();
+                });
+            }
+
+            // Draw Snake
+            snake.forEach((part, index) => {
+                const isHead = index === 0;
+                ctx.save();
+                
+                // Resolve theme color based on selected skin
+                let skinColor = '#00f2fe';
+                let glowColor = 'rgba(0, 242, 254, 0.8)';
+                
+                if (snakeSkin === 'pink') {
+                    skinColor = '#ff007f';
+                    glowColor = 'rgba(255, 0, 127, 0.8)';
+                } else if (snakeSkin === 'gold') {
+                    skinColor = '#fbbf24';
+                    glowColor = 'rgba(251, 191, 36, 0.8)';
+                } else if (snakeSkin === 'rainbow') {
+                    const hue = (index * 25) % 360;
+                    skinColor = `hsl(${hue}, 100%, 55%)`;
+                    glowColor = `hsla(${hue}, 100%, 55%, 0.8)`;
+                }
+
+                ctx.shadowBlur = isHead ? 15 : 8;
+                ctx.shadowColor = glowColor;
+                ctx.fillStyle = skinColor;
+                
+                // Draw rounded head or classic body segment
+                ctx.beginPath();
+                if (isHead) {
+                    ctx.roundRect(part.x * GRID_SIZE + 1, part.y * GRID_SIZE + 1, GRID_SIZE - 2, GRID_SIZE - 2, 6);
+                } else {
+                    ctx.roundRect(part.x * GRID_SIZE + 2, part.y * GRID_SIZE + 2, GRID_SIZE - 4, GRID_SIZE - 4, 4);
+                }
+                ctx.fill();
+
+                // Draw Eyes on head
+                if (isHead) {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.shadowBlur = 0;
+                    
+                    const eyeSize = 3.5;
+                    let eyeOffset1 = { x: 0, y: 0 };
+                    let eyeOffset2 = { x: 0, y: 0 };
+
+                    switch (direction) {
+                        case 'RIGHT':
+                            eyeOffset1 = { x: 12, y: 4 };
+                            eyeOffset2 = { x: 12, y: 12 };
+                            break;
+                        case 'LEFT':
+                            eyeOffset1 = { x: 4, y: 4 };
+                            eyeOffset2 = { x: 4, y: 12 };
+                            break;
+                        case 'UP':
+                            eyeOffset1 = { x: 4, y: 4 };
+                            eyeOffset2 = { x: 12, y: 4 };
+                            break;
+                        case 'DOWN':
+                            eyeOffset1 = { x: 4, y: 12 };
+                            eyeOffset2 = { x: 12, y: 12 };
+                            break;
+                    }
+                    ctx.fillRect(part.x * GRID_SIZE + eyeOffset1.x, part.y * GRID_SIZE + eyeOffset1.y, eyeSize, eyeSize);
+                    ctx.fillRect(part.x * GRID_SIZE + eyeOffset2.x, part.y * GRID_SIZE + eyeOffset2.y, eyeSize, eyeSize);
+                }
+                ctx.restore();
+            });
+
+            // Draw Food / Power-Up
+            ctx.save();
+            let foodGlow = '#00f2fe';
+            let foodInner = '#00f2fe';
+            let isPowerup = food.type !== 'normal';
+            
+            if (food.type === 'normal') {
+                foodGlow = '#00f2fe';
+                foodInner = '#e2e8f0';
+            } else if (food.type === 'shield') {
+                foodGlow = '#ff007f';
+                foodInner = '#ff5fa8';
+            } else if (food.type === 'multiplier') {
+                foodGlow = '#fbbf24';
+                foodInner = '#fcd34d';
+            } else if (food.type === 'freeze') {
+                foodGlow = '#10b981';
+                foodInner = '#34d399';
+            }
+
+            ctx.shadowBlur = 18;
+            ctx.shadowColor = foodGlow;
+            ctx.fillStyle = foodGlow;
+            
+            ctx.beginPath();
+            if (isPowerup) {
+                // Star shape or diamond for power-ups
+                const cx = food.x * GRID_SIZE + GRID_SIZE / 2;
+                const cy = food.y * GRID_SIZE + GRID_SIZE / 2;
+                ctx.moveTo(cx, cy - GRID_SIZE / 2);
+                ctx.lineTo(cx + GRID_SIZE / 2.5, cy);
+                ctx.lineTo(cx, cy + GRID_SIZE / 2);
+                ctx.lineTo(cx - GRID_SIZE / 2.5, cy);
+                ctx.closePath();
+                ctx.fill();
+            } else {
+                // Glowy circle for normal apples
+                ctx.arc(food.x * GRID_SIZE + GRID_SIZE / 2, food.y * GRID_SIZE + GRID_SIZE / 2, GRID_SIZE / 2.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Core shiny center
+            ctx.fillStyle = foodInner;
+            ctx.shadowBlur = 0;
+            ctx.beginPath();
+            ctx.arc(food.x * GRID_SIZE + GRID_SIZE / 2 - 1, food.y * GRID_SIZE + GRID_SIZE / 2 - 1, GRID_SIZE / 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            // Render glowing burst particles
+            drawParticles();
+        }
+
+        // Local Achievements List Simulation
+        const ACHIEVEMENTS = [
+            { id: 'first_bite', title: 'Gigitan Pertama', desc: 'Dapatkan skor mencapai 50 poin', points: 50, icon: 'fa-apple-whole', unlocked: false },
+            { id: 'neon_master', title: 'Penguasa Neon', desc: 'Dapatkan skor mencapai 200 poin', points: 200, icon: 'fa-crown', unlocked: false },
+            { id: 'unstoppable', title: 'Tak Terhentikan', desc: 'Makan 25 kali di semua mode game', count: 25, icon: 'fa-fire', unlocked: false },
+            { id: 'barrier_breaker', title: 'Penjelajah Portal', desc: 'Mencapai skor 100 poin di Mode Portal', points: 100, mode: 'portal', icon: 'fa-door-open', unlocked: false }
+        ];
+
+        function updateAchievements() {
+            const container = document.getElementById('achievements-container');
+            container.innerHTML = '';
+            
+            // Perform checks
+            ACHIEVEMENTS.forEach(ach => {
+                // Check score conditions
+                if (ach.id === 'first_bite' && (highScores.classic >= ach.points || highScores.portal >= ach.points || highScores.obstacles >= ach.points)) {
+                    ach.unlocked = true;
+                }
+                if (ach.id === 'neon_master' && (highScores.classic >= ach.points || highScores.portal >= ach.points || highScores.obstacles >= ach.points)) {
+                    ach.unlocked = true;
+                }
+                if (ach.id === 'unstoppable' && foodEatenCount >= ach.count) {
+                    ach.unlocked = true;
+                }
+                if (ach.id === 'barrier_breaker' && highScores.portal >= ach.points) {
+                    ach.unlocked = true;
+                }
+
+                // Render Ach Panel
+                const card = document.createElement('div');
+                card.className = `flex items-center gap-3 p-2.5 rounded-xl border transition-all ${
+                    ach.unlocked 
+                        ? 'bg-cyan-950/20 border-cyan-500/40 text-white' 
+                        : 'bg-slate-950/40 border-gray-800 text-gray-500'
+                }`;
+                
+                card.innerHTML = `
+                    <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                        ach.unlocked ? 'bg-cyan-500/20 text-cyan-400' : 'bg-slate-900 text-gray-600'
+                    }">
+                        <i class="fa-solid ${ach.icon}"></i>
+                    </span>
+                    <div class="overflow-hidden">
+                        <p class="text-xs font-bold truncate ${ach.unlocked ? 'text-cyan-300' : 'text-gray-500'}">${ach.title}</p>
+                        <p class="text-[10px] leading-tight truncate text-gray-400">${ach.desc}</p>
+                    </div>
+                    ${ach.unlocked ? '<i class="fa-solid fa-circle-check text-xs text-cyan-400 ml-auto"></i>' : '<i class="fa-solid fa-lock text-xs text-gray-600 ml-auto"></i>'}
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Window Initializer
+        window.onload = function() {
+            loadHighScores();
+            // Perform first drawing to show grid
+            ctx.fillStyle = '#06070d';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            draw();
+        }
+    </script>
+</body>
+</html>
