@@ -202,7 +202,7 @@
             </div>
 
             <!-- Game Container Frame -->
-            <div class="relative w-full aspect-square max-w-[500px] bg-slate-950/80 rounded-2xl overflow-hidden neon-border flex items-center justify-center transition-all duration-300" id="game-container">
+            <div class="relative w-full aspect-square max-w-[500px] bg-emerald-950/80 rounded-2xl overflow-hidden neon-border flex items-center justify-center transition-all duration-300" id="game-container">
                 
                 <!-- Game Canvas -->
                 <canvas id="gameCanvas" width="500" height="500" class="w-full h-full block m-auto object-contain"></canvas>
@@ -226,7 +226,7 @@
                 </div>
 
                 <!-- Game Menu Screen Overlay (Start & Pause & Game Over) -->
-                <div id="menu-overlay" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-20">
+                <div id="menu-overlay" class="absolute inset-0 bg-zinc-900/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-20">
                     <div id="menu-start-view" class="flex flex-col items-center gap-4">
                         <i class="fa-solid fa-gamepad text-5xl text-cyan-400 animate-bounce mb-2 neon-text"></i>
                         <h2 class="arcade-font text-xl text-cyan-400 neon-text tracking-wide">SNAKE NEON</h2>
@@ -997,11 +997,11 @@
         }
 
         function draw() {
-            ctx.fillStyle = '#06070d';
+            ctx.fillStyle = '#0a3622';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             // Draw grid lines
-            ctx.strokeStyle = 'rgba(0, 242, 254, 0.04)';
+            ctx.strokeStyle = 'rgba(0, 242, 254, 0.05)';
             ctx.lineWidth = 1;
             for (let i = 0; i <= TILE_COUNT; i++) {
                 ctx.beginPath();
@@ -1204,7 +1204,7 @@
         // Window Initializer
         window.onload = function() {
             loadHighScores();
-            ctx.fillStyle = '#06070d';
+            ctx.fillStyle = '#0a3622';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             draw();
         }
