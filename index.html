@@ -19,7 +19,7 @@
             background-color: #0d0e15;
             color: #e2e8f0;
             overflow-x: hidden;
-            touch-action: manipulation;
+            touch-action: none; /* Mencegah geser bawaan browser pada HP saat bermain */
         }
         .arcade-font {
             font-family: 'Press Start 2P', cursive;
@@ -68,6 +68,7 @@
             animation: pulse-slow 3s infinite ease-in-out;
         }
 
+        /* Mode Layar Fokus / Theatre Mode */
         .theatre-active {
             position: fixed !important;
             top: 0 !important;
@@ -76,7 +77,7 @@
             height: 100vh !important;
             z-index: 50 !important;
             background-color: #05060a !important;
-            padding: 0.5rem !important;
+            padding: 1rem !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: space-between !important;
@@ -85,42 +86,23 @@
             box-sizing: border-box !important;
         }
         
-        /* Default penyesuaian kontainer dalam Mode Fokus pada desktop */
+        /* Penyesuaian kontainer dalam Mode Fokus agar seimbang & penuh di HP/PC */
         .theatre-active #game-container {
             flex: 1 1 auto;
             width: 100%;
-            max-width: min(95vw, 75vh);
-            aspect-ratio: 1 / 1;
             margin: auto;
             border-radius: 1.5rem;
-        }
-
-        /* Penyesuaian khusus perangkat sentuh / HP agar muat di satu layar utuh */
-        .touch-device.theatre-active #game-container {
-            max-height: calc(100vh - 280px) !important;
-            max-width: min(92vw, calc(100vh - 280px)) !important;
-        }
-
-        /* Penyesuaian ukuran jika desktop tanpa layar sentuh masuk mode fokus */
-        body:not(.touch-device).theatre-active #game-container {
-            max-height: calc(100vh - 140px) !important;
-            max-width: min(92vw, calc(100vh - 140px)) !important;
+            max-height: calc(100vh - 130px) !important;
+            max-width: min(92vw, calc(100vh - 130px)) !important;
         }
 
         .theatre-active .in-game-controls {
             width: 100%;
             max-width: min(95vw, 500px);
-            margin-top: 0.4rem !important;
-            margin-bottom: 0.4rem !important;
-        }
-
-        .theatre-active .virtual-pad-wrapper {
-            display: flex !important;
-            margin-top: 0.25rem !important;
+            margin-top: 0.5rem !important;
             margin-bottom: 0.5rem !important;
         }
         
-        /* Cegah seleksi teks tidak sengaja pada tombol virtual di HP */
         .no-select {
             -webkit-touch-callout: none;
             -webkit-user-select: none;
@@ -152,7 +134,7 @@
             </div>
             <div class="h-8 w-[1px] bg-cyan-500/20"></div>
             <div class="text-center">
-                <span class="text-xs text-gray-400 uppercase tracking-wider block font-semibold">Skor Tertinggi</span>
+                <span class="text-xs text-gray-400 uppercase tracking-wider block font-semibold">Skor Terbaik</span>
                 <span id="high-score-display" class="text-2xl font-bold text-pink-500 neon-text-pink">0</span>
             </div>
         </div>
@@ -263,7 +245,7 @@
                     <div id="menu-start-view" class="flex flex-col items-center gap-4">
                         <i class="fa-solid fa-gamepad text-5xl text-cyan-400 animate-bounce mb-2 neon-text"></i>
                         <h2 class="arcade-font text-xl text-cyan-400 neon-text tracking-wide">SNAKE NEON</h2>
-                        <p class="text-xs text-gray-400 max-w-xs mt-1">Rasakan keseruan game ular klasik dengan efek neon, berbagai mode, serta power-ups keren!</p>
+                        <p class="text-xs text-gray-400 max-w-xs mt-1">Gunakan Tombol Arah / WASD di PC, atau geser (swipe) layar di HP Anda!</p>
                         <button onclick="startGame()" class="mt-4 px-8 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold tracking-wider hover:from-cyan-400 hover:to-blue-500 transition-all shadow-[0_0_15px_rgba(6,182,212,0.5)] transform hover:scale-105 active:scale-95 text-lg">
                             MULAI PERMAINAN <i class="fa-solid fa-play ml-2"></i>
                         </button>
@@ -314,33 +296,6 @@
                 <button onclick="toggleMute()" class="py-2.5 px-3.5 rounded-xl border border-gray-700 bg-slate-900/60 hover:bg-slate-800/60 text-white transition flex items-center justify-center">
                     <i id="sound-icon" class="fa-solid fa-volume-high"></i>
                 </button>
-            </div>
-
-            <!-- Virtual Controls moved inside the cabinet container for unified fullscreen experience -->
-            <div class="virtual-pad-wrapper w-full max-w-xs mx-auto mt-4 hidden flex-col items-center gap-1 z-10 no-select">
-                <div class="grid grid-cols-3 gap-2 w-44">
-                    <div></div>
-                    <button ontouchstart="handleDirectionChange('UP'); event.preventDefault();" mousedown="handleDirectionChange('UP')" class="w-12 h-12 bg-slate-900/80 active:bg-cyan-500/40 text-cyan-400 active:text-white border border-cyan-500/30 rounded-xl flex items-center justify-center text-lg shadow-md transition-all active:scale-95 duration-75">
-                        <i class="fa-solid fa-caret-up"></i>
-                    </button>
-                    <div></div>
-                    
-                    <button ontouchstart="handleDirectionChange('LEFT'); event.preventDefault();" mousedown="handleDirectionChange('LEFT')" class="w-12 h-12 bg-slate-900/80 active:bg-cyan-500/40 text-cyan-400 active:text-white border border-cyan-500/30 rounded-xl flex items-center justify-center text-lg shadow-md transition-all active:scale-95 duration-75">
-                        <i class="fa-solid fa-caret-left"></i>
-                    </button>
-                    <div class="w-12 h-12 bg-slate-950/20 rounded-xl border border-gray-800 flex items-center justify-center">
-                        <div class="w-2.5 h-2.5 bg-cyan-400/30 rounded-full animate-ping"></div>
-                    </div>
-                    <button ontouchstart="handleDirectionChange('RIGHT'); event.preventDefault();" mousedown="handleDirectionChange('RIGHT')" class="w-12 h-12 bg-slate-900/80 active:bg-cyan-500/40 text-cyan-400 active:text-white border border-cyan-500/30 rounded-xl flex items-center justify-center text-lg shadow-md transition-all active:scale-95 duration-75">
-                        <i class="fa-solid fa-caret-right"></i>
-                    </button>
-                    
-                    <div></div>
-                    <button ontouchstart="handleDirectionChange('DOWN'); event.preventDefault();" mousedown="handleDirectionChange('DOWN')" class="w-12 h-12 bg-slate-900/80 active:bg-cyan-500/40 text-cyan-400 active:text-white border border-cyan-500/30 rounded-xl flex items-center justify-center text-lg shadow-md transition-all active:scale-95 duration-75">
-                        <i class="fa-solid fa-caret-down"></i>
-                    </button>
-                    <div></div>
-                </div>
             </div>
         </section>
 
@@ -397,7 +352,7 @@
     <!-- Informational Footer -->
     <footer id="main-footer" class="w-full max-w-5xl mx-auto text-center border-t border-cyan-950/40 pt-4 mt-auto transition-all duration-300">
         <p class="text-xs text-gray-500">
-            <span class="text-cyan-400 font-bold">&copy; 2026 Neon Snake</span>. Mainkan dengan Tombol Arah / WASD di Keyboard, Tombol Virtual di Layar, atau Sentuh / Geser layar Anda!
+            <span class="text-cyan-400 font-bold">&copy; 2026 Neon Snake</span>. Mainkan dengan Tombol Arah / WASD di Keyboard, atau Geser (Swipe) layar Anda di HP!
         </p>
     </footer>
 
@@ -627,17 +582,7 @@
             }
         });
 
-        function handleDirectionChange(newDir) {
-            if (isGameOver || isPaused) return;
-            playSynthSound(700, 'sine', 0.02, 0.05);
-            
-            if (newDir === 'UP' && direction !== 'DOWN') nextDirection = 'UP';
-            if (newDir === 'DOWN' && direction !== 'UP') nextDirection = 'DOWN';
-            if (newDir === 'LEFT' && direction !== 'RIGHT') nextDirection = 'LEFT';
-            if (newDir === 'RIGHT' && direction !== 'LEFT') nextDirection = 'RIGHT';
-        }
-
-        // Swipe Gestures for Mobile Phones
+        // Swipe Gestures for Mobile Phones (Pengganti Kontrol Virtual)
         let touchstartX = 0;
         let touchstartY = 0;
         let touchendX = 0;
@@ -656,9 +601,10 @@
         }, { passive: true });
 
         function handleSwipe() {
+            if (isGameOver || isPaused) return;
             const diffX = touchendX - touchstartX;
             const diffY = touchendY - touchstartY;
-            const threshold = 40;
+            const threshold = 30; // Sensitivitas geser (lebih rendah agar lebih responsif)
 
             if (Math.abs(diffX) > Math.abs(diffY)) {
                 if (Math.abs(diffX) > threshold) {
@@ -670,15 +616,6 @@
                     if (diffY > 0 && direction !== 'UP') nextDirection = 'DOWN';
                     else if (diffY < 0 && direction !== 'DOWN') nextDirection = 'UP';
                 }
-            }
-        }
-
-        // Detect Touch Support to show virtual pad
-        function detectTouchDevice() {
-            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-                document.querySelector('.virtual-pad-wrapper').classList.remove('hidden');
-                document.querySelector('.virtual-pad-wrapper').classList.add('flex');
-                document.body.classList.add('touch-device');
             }
         }
 
@@ -962,11 +899,10 @@
                 if (head.y >= TILE_COUNT) head.y = 0;
             } else {
                 if (head.x < 0 || head.x >= TILE_COUNT || head.y < 0 || head.y >= TILE_COUNT) {
-                    if (activePowerupType === 'text-shield' || activePowerupType === 'shield') {
+                    if (activePowerupType === 'shield') {
                         activePowerupType = null;
                         document.getElementById('active-powerup').classList.add('hidden');
                         playSynthSound(800, 'square', 0.2, 0.15);
-                        // Bounce head back to valid coordinate
                         return;
                     } else {
                         triggerGameOver("Anda menabrak pembatas arena!");
@@ -1286,7 +1222,6 @@
         // Window Initializer
         window.onload = function() {
             loadHighScores();
-            detectTouchDevice();
             ctx.fillStyle = '#06070d';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             draw();
